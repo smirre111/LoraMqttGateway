@@ -597,6 +597,24 @@ void pubMqttDiscovery() {
                   0, "", "", true, "",
                   "", "", "", "", false // device name, device manufacturer, device model, device mac, retain
   );
+//   char* blindsLORA[8] = {"sensor", "wohnzimmerLORA", "", "", jsonMsg, "", "", ""};
+//   createDiscovery(blindsLORA[0],
+//                   subjectLORAtoMQTT+"/17/status", blindsLORA[1], (char*)getUniqueId(blindsLORA[1], blindsLORA[2]).c_str(),
+//                   subjectLORAtoMQTT+"/17/available", gatewayLORA[3], blindsLORA[4],
+//                   blindsLORA[5], gatewayLORA[6], blindsLORA[7],
+//                   0, "", "", true, "",
+//                   "", "", "", "", false // device name, device manufacturer, device model, device mac, retain
+//   );
+
+// void createDiscovery(char* sensor_type,
+//                      char* st_topic, char* s_name, char* unique_id,
+//                      char* availability_topic, char* device_class, char* value_template,
+//                      char* payload_on, char* payload_off, char* unit_of_meas,
+//                      int off_delay,
+//                      char* payload_available, char* payload_not_avalaible, bool gateway_entity, char* cmd_topic,
+//                      char* device_name, char* device_manufacturer, char* device_model, char* device_mac, bool retainCmd)
+
+
 #  endif
 
 #  ifdef ZgatewaySRFB

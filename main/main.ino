@@ -26,6 +26,29 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "User_config.h"
+#include "blinds.pb-c.h"
+
+typedef uint8_t blinds_syscmd_base_t;
+
+struct BlindsSysCmd
+{
+  static const blinds_syscmd_base_t SYSCMD_OPEN = '1';
+  static const blinds_syscmd_base_t SYSCMD_CLOSE = '2';
+  static const blinds_syscmd_base_t SYSCMD_ENABLE_WIFI = '3';
+  static const blinds_syscmd_base_t SYSCMD_DISABLE_WIFI = '4';
+  static const blinds_syscmd_base_t SYSCMD_OTA = '5';
+  static const blinds_syscmd_base_t SYSCMD_STATUS = '6';
+  static const blinds_syscmd_base_t SYSCMD_STOP = '7';
+};
+
+enum mqtt_blinds_state_t
+{
+  BLINDS_OPEN,
+  BLINDS_OPENING,
+  BLINDS_CLOSING,
+  BLINDS_CLOSED
+};
+
 
 // Macros and structure to enable the duplicates removing on the following gateways
 #if defined(ZgatewayRF) || defined(ZgatewayIR) || defined(ZgatewaySRFB) || defined(ZgatewayWeatherStation)
@@ -460,6 +483,23 @@ bool cmpToMainTopic(char* topicOri, char* toAdd) {
     return false;
   }
 }
+
+uint8_t getAddress(char* topicOri, char* toAdd) {
+  char topic[mqtt_topic_max_size];
+  strcpy(topic, mqtt_topic);
+  strcat(topic, toAdd);
+  char* ret = strstr(topicOri, topic);
+  const char delim[2] = "/";
+  char* token;
+  if (ret != NULL) {
+    token = strtok(ret, delim);
+    uint8_t address = atoi(token);
+    return address;
+  } else {
+    return uint8_t(0);
+  }
+}
+
 
 void connectMQTT() {
 #ifndef ESPWifiManualSetup

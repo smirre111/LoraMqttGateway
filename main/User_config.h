@@ -83,15 +83,15 @@ const byte mac[] = {0xDE, 0xED, 0xBA, 0xFE, 0x54, 0x95}; //W5100 ethernet shield
 
 #if defined(ESPWifiManualSetup) // for nodemcu, weemos and esp8266
 #  ifndef wifi_ssid
-#    define wifi_ssid "wifi ssid"
+#    define wifi_ssid "FRITZ!Box 7590 TD"
 #  endif
 #  ifndef wifi_password
-#    define wifi_password "wifi password"
+#    define wifi_password "23461468396986328867"
 #  endif
 #endif
 
 #ifndef WifiManager_password
-#  define WifiManager_password "your_password" //this is going to be the WPA2-PSK password for the initial setup access point
+#  define WifiManager_password "FelixMarlene1" //this is going to be the WPA2-PSK password for the initial setup access point
 #endif
 #ifndef WifiManager_ssid
 #  define WifiManager_ssid Gateway_Name //this is the network name of the initial setup access point
@@ -140,7 +140,7 @@ const byte mac[] = {0xDE, 0xED, 0xBA, 0xFE, 0x54, 0x95}; //W5100 ethernet shield
 #  define MQTT_PASS "your_password"
 #endif
 #ifndef MQTT_SERVER
-#  define MQTT_SERVER "192.168.1.17"
+#  define MQTT_SERVER "192.168.178.38"
 #endif
 #ifndef MQTT_PORT
 #  define MQTT_PORT MQTT_DEFAULT_PORT
