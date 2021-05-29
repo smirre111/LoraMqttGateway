@@ -46,7 +46,8 @@ enum mqtt_blinds_state_t
   BLINDS_OPEN,
   BLINDS_OPENING,
   BLINDS_CLOSING,
-  BLINDS_CLOSED
+  BLINDS_CLOSED,
+  BLINDS_STOPPED
 };
 
 

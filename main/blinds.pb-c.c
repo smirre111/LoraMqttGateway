@@ -232,7 +232,7 @@ void   blnd_response_message__free_unpacked
   assert(message->base.descriptor == &blnd_response_message__descriptor);
   protobuf_c_message_free_unpacked ((ProtobufCMessage*)message, allocator);
 }
-static const ProtobufCFieldDescriptor blnd_status__field_descriptors[2] =
+static const ProtobufCFieldDescriptor blnd_status__field_descriptors[3] =
 {
   {
     "state",
@@ -258,15 +258,28 @@ static const ProtobufCFieldDescriptor blnd_status__field_descriptors[2] =
     0,             /* flags */
     0,NULL,NULL    /* reserved1,reserved2, etc */
   },
+  {
+    "position",
+    3,
+    PROTOBUF_C_LABEL_NONE,
+    PROTOBUF_C_TYPE_FLOAT,
+    0,   /* quantifier_offset */
+    offsetof(BlndStatus, position),
+    NULL,
+    NULL,
+    0,             /* flags */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
 };
 static const unsigned blnd_status__field_indices_by_name[] = {
+  2,   /* field[2] = position */
   0,   /* field[0] = state */
   1,   /* field[1] = voltage */
 };
 static const ProtobufCIntRange blnd_status__number_ranges[1 + 1] =
 {
   { 1, 0 },
-  { 0, 2 }
+  { 0, 3 }
 };
 const ProtobufCMessageDescriptor blnd_status__descriptor =
 {
@@ -276,7 +289,7 @@ const ProtobufCMessageDescriptor blnd_status__descriptor =
   "BlndStatus",
   "",
   sizeof(BlndStatus),
-  2,
+  3,
   blnd_status__field_descriptors,
   blnd_status__field_indices_by_name,
   1,  blnd_status__number_ranges,
@@ -649,22 +662,24 @@ const ProtobufCEnumDescriptor blnd_response__descriptor =
   blnd_response__value_ranges,
   NULL,NULL,NULL,NULL   /* reserved[1234] */
 };
-static const ProtobufCEnumValue blnd_state__enum_values_by_number[4] =
+static const ProtobufCEnumValue blnd_state__enum_values_by_number[5] =
 {
   { "BLINDS_MQTT_OPEN", "BLND_STATE__BLINDS_MQTT_OPEN", 0 },
   { "BLINDS_MQTT_OPENING", "BLND_STATE__BLINDS_MQTT_OPENING", 1 },
   { "BLINDS_MQTT_CLOSING", "BLND_STATE__BLINDS_MQTT_CLOSING", 2 },
   { "BLINDS_MQTT_CLOSED", "BLND_STATE__BLINDS_MQTT_CLOSED", 3 },
+  { "BLINDS_MQTT_STOPPED", "BLND_STATE__BLINDS_MQTT_STOPPED", 4 },
 };
 static const ProtobufCIntRange blnd_state__value_ranges[] = {
-{0, 0},{0, 4}
+{0, 0},{0, 5}
 };
-static const ProtobufCEnumValueIndex blnd_state__enum_values_by_name[4] =
+static const ProtobufCEnumValueIndex blnd_state__enum_values_by_name[5] =
 {
   { "BLINDS_MQTT_CLOSED", 3 },
   { "BLINDS_MQTT_CLOSING", 2 },
   { "BLINDS_MQTT_OPEN", 0 },
   { "BLINDS_MQTT_OPENING", 1 },
+  { "BLINDS_MQTT_STOPPED", 4 },
 };
 const ProtobufCEnumDescriptor blnd_state__descriptor =
 {
@@ -673,9 +688,9 @@ const ProtobufCEnumDescriptor blnd_state__descriptor =
   "BlndState",
   "BlndState",
   "",
-  4,
+  5,
   blnd_state__enum_values_by_number,
-  4,
+  5,
   blnd_state__enum_values_by_name,
   1,
   blnd_state__value_ranges,

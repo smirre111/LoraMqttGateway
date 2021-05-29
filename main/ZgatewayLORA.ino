@@ -67,10 +67,43 @@ blinds_syscmd_base_t MQTTMessageToLORACmd(const JsonObject& LORAdata) {
   return cmd;
 }
 
+BlndOperation MQTTMessageToPbCmd(const JsonObject& LORAdata) {
+  BlndOperation cmd;
+  const char* message = LORAdata["cmd"];
+  if (strcmp(message, "OPEN") == 0) {
+    cmd = BLND_OPERATION__CMD_OPEN;
+    Log.notice(F("Decoded OPEN" CR));
+  } else if (strcmp(message, "CLOSE") == 0) {
+    cmd = BLND_OPERATION__CMD_CLOSE;
+    Log.notice(F("Decoded CLOSE" CR));
+  } else if (strcmp(message, "ENABLE_WIFI") == 0) {
+    cmd = BLND_OPERATION__CMD_ENABLE_WIFI;
+    Log.notice(F("Decoded ENABLE WIFI" CR));
+  } else if (strcmp(message, "DIABLE_WIFI") == 0) {
+    cmd = BLND_OPERATION__CMD_DISABLE_WIFI;
+    Log.notice(F("Decoded DISABLE WIFI" CR));
+  } else if (strcmp(message, "OTA") == 0) {
+    cmd = BLND_OPERATION__CMD_OTA;
+    Log.notice(F("Decoded OTA" CR));
+  } else if (strcmp(message, "STATUS") == 0) {
+    cmd = BLND_OPERATION__CMD_STATUS;
+    Log.notice(F("Decoded STATUS" CR));
+  } else if (strcmp(message, "STOP") == 0) {
+    cmd = BLND_OPERATION__CMD_STOP;
+    Log.notice(F("Decoded STOP" CR));
+  } else {
+    cmd = BLND_OPERATION__CMD_IDLE;
+    Log.notice(F("Decoded No valid message" CR));
+  }
+
+  return cmd;
+}
+
 const char* stateOpen{"open"};
 const char* stateOpening{"opening"};
 const char* stateClosing{"closing"};
 const char* stateClosed{"closed"};
+const char* stateStopped{"stopped"};
 
 const char* blindsStateToString(const mqtt_blinds_state_t& state) {
   switch (state) {
@@ -85,6 +118,9 @@ const char* blindsStateToString(const mqtt_blinds_state_t& state) {
       break;
     case 3:
       return stateClosed;
+      break;
+    case 4:
+      return stateStopped;
       break;
     default:
       return stateOpen;
@@ -104,6 +140,9 @@ const char* blindsStatePbToString(const BlndState& state) {
       break;
     case BLND_STATE__BLINDS_MQTT_CLOSED:
       return stateClosed;
+      break;
+    case BLND_STATE__BLINDS_MQTT_STOPPED:
+      return stateStopped;
       break;
     default:
       return stateOpen;
@@ -209,7 +248,6 @@ void LORAtoMQTT() {
       return;
     }
 
-    
 #  endif
 
     // Log.notice(F("Packet length: %d" CR), length);
@@ -244,33 +282,28 @@ void LORAtoMQTT() {
       jsonMessage = false;
     }
 #  else
-    switch (rcv_message->proto_case) 
-    {
-      case BLND_RESPONSE_MESSAGE__PROTO__NOT_SET: 
-      {
+    switch (rcv_message->proto_case) {
+      case BLND_RESPONSE_MESSAGE__PROTO__NOT_SET: {
         Log.notice(F("Proto not set:" CR));
-      }
-      break;
-      case BLND_RESPONSE_MESSAGE__PROTO_STATE: 
-      {
+      } break;
+      case BLND_RESPONSE_MESSAGE__PROTO_STATE: {
         BlndStatus* status = rcv_message->state;
         float voltage = status->voltage;
+        int position = int(status->position);
         BlndState state = status->state;
         LORAsubdata.set("state", blindsStatePbToString(state));
         LORAsubdata.set("volt", voltage);
+        LORAsubdata.set("position", position);
         // blnd_status__free_unpacked(status, NULL);
 
-      } 
-      break;
-      case BLND_RESPONSE_MESSAGE__PROTO_LOGGING: 
-      {
+      } break;
+      case BLND_RESPONSE_MESSAGE__PROTO_LOGGING: {
         BlndLogging* logmsg = rcv_message->logging;
         LORAsubdata.set("log", logmsg->logmsg);
         // blnd_logging__free_unpacked(logmsg, NULL);
 
       } break;
-      case BLND_RESPONSE_MESSAGE__PROTO_AVAIL: 
-      {
+      case BLND_RESPONSE_MESSAGE__PROTO_AVAIL: {
         BlndAvailable* avail = rcv_message->avail;
         if (avail->available == true) {
           strcpy(LORAmessage, onlineString);
@@ -280,13 +313,15 @@ void LORAtoMQTT() {
         // blnd_available__free_unpacked(avail, NULL);
         jsonMessage = false;
 
-      } 
-      break;
+      } break;
     }
 #  endif
 
     const String statusTopic = "status";
     const String availableTopic = "available";
+    const String positionTopic = "position";
+
+
 #  if (PB == 0)
     String mac_address(senderAddress);
 #  else
@@ -300,6 +335,9 @@ void LORAtoMQTT() {
     } else {
       mactopic = subjectLORAtoMQTT + String("/") + mac_address + String("/") + availableTopic;
     }
+    String mactopicPos{};
+    mactopicPos = subjectLORAtoMQTT + String("/") + mac_address + String("/") + positionTopic;
+
 
 #  if (PB == 0)
     LORAsubdata.set("destAddress", (int)destAddress);
@@ -312,7 +350,7 @@ void LORAtoMQTT() {
     LORAsubdata.set("senderAddress", (int)rcv_message->senderaddress);
     LORAsubdata.set("msgId", (int)rcv_message->msgid);
 
-    blnd_response_message__free_unpacked(rcv_message, NULL);
+    //blnd_response_message__free_unpacked(rcv_message, NULL);
 
 #  endif
 
@@ -327,6 +365,7 @@ void LORAtoMQTT() {
       if (jsonMessage) {
         //pub(subjectLORAtoMQTT, LORAdata);
         pub((char*)mactopic.c_str(), LORAdata);
+        pub((char*)mactopicPos.c_str(), LORAdata);
       } else {
         //pub(subjectLORAtoMQTT, LORAdata);
         pub((char*)mactopic.c_str(), LORAmessage);
@@ -337,6 +376,8 @@ void LORAtoMQTT() {
         if (jsonMessage) {
           //pub(subjectLORAtoMQTT, LORAdata);
           pub((char*)mactopic.c_str(), LORAdata);
+          pub((char*)mactopicPos.c_str(), LORAdata);
+
         } else {
           //pub(subjectLORAtoMQTT, LORAdata);
           pub((char*)mactopic.c_str(), LORAmessage);
@@ -345,6 +386,16 @@ void LORAtoMQTT() {
     } else {
       Log.notice(F("SNR too low for valid message:" CR));
     }
+
+#  if (PB == 0)
+
+#  else
+
+    blnd_response_message__free_unpacked(rcv_message, NULL);
+
+#  endif
+
+
   }
 }
 
@@ -371,6 +422,24 @@ void MQTTtoLORA(char* topicOri, JsonObject& LORAdata) { // json object decoding
     uint8_t length = 1;
     const char* message = LORAdata["message"];
 
+#    if (PB == 1)
+    BlndOperation operation = MQTTMessageToPbCmd(LORAdata);
+
+    BlndOperationMessage op_message = {PROTOBUF_C_MESSAGE_INIT(&blnd_operation_message__descriptor),
+                                       destAddress,
+                                       destSubnet,
+                                       senderAddress,
+                                       msgId,
+                                       operation};
+
+    uint8_t* txBuf;
+    unsigned len;
+    len = blnd_operation_message__get_packed_size(&op_message);
+    txBuf = new uint8_t[len];
+    blnd_operation_message__pack(&op_message, txBuf);
+
+#    else
+
     uint8_t payload[7];
     payload[0] = uint8_t(destAddress);
     payload[1] = uint8_t(destSubnet);
@@ -382,6 +451,10 @@ void MQTTtoLORA(char* topicOri, JsonObject& LORAdata) { // json object decoding
 
     Log.notice(F("Message to send: : %s" CR), payload);
 
+#    endif
+
+
+
     int txPower = LORAdata["txpower"] | LORA_TX_POWER;
     int spreadingFactor = LORAdata["spreadingfactor"] | LORA_SPREADING_FACTOR;
     long int frequency = LORAdata["frequency "] | LORA_BAND;
@@ -390,6 +463,7 @@ void MQTTtoLORA(char* topicOri, JsonObject& LORAdata) { // json object decoding
     int preambleLength = LORAdata["preamblelength"] | LORA_PREAMBLE_LENGTH;
     byte syncWord = LORAdata["syncword"] | LORA_SYNC_WORD;
     bool Crc = LORAdata["enablecrc"] | DEFAULT_CRC;
+
     if (message) {
       LoRa.setTxPower(txPower);
       LoRa.setFrequency(frequency);
@@ -398,12 +472,22 @@ void MQTTtoLORA(char* topicOri, JsonObject& LORAdata) { // json object decoding
       LoRa.setCodingRate4(codingRateDenominator);
       LoRa.setPreambleLength(preambleLength);
       LoRa.setSyncWord(syncWord);
-      if (Crc)
+      if (Crc) {
         LoRa.enableCrc();
+      }
+
+#    if (PB == 1)
+      LoRa.beginPacket();
+      LoRa.write(txBuf, len);
+      //LoRa.print(message);
+      LoRa.endPacket();
+#    else
       LoRa.beginPacket();
       LoRa.write(payload, 6);
       //LoRa.print(message);
       LoRa.endPacket();
+#    endif
+
       Log.trace(F("MQTTtoLORA OK" CR));
       pub(subjectGTWLORAtoMQTT, LORAdata); // we acknowledge the sending by publishing the value to an acknowledgement topic, for the moment even if it is a signal repetition we acknowledge also
     } else {

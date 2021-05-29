@@ -45,7 +45,8 @@ typedef enum _BlndState {
   BLND_STATE__BLINDS_MQTT_OPEN = 0,
   BLND_STATE__BLINDS_MQTT_OPENING = 1,
   BLND_STATE__BLINDS_MQTT_CLOSING = 2,
-  BLND_STATE__BLINDS_MQTT_CLOSED = 3
+  BLND_STATE__BLINDS_MQTT_CLOSED = 3,
+  BLND_STATE__BLINDS_MQTT_STOPPED = 4
     PROTOBUF_C__FORCE_ENUM_TO_BE_INT_SIZE(BLND_STATE)
 } BlndState;
 
@@ -56,10 +57,11 @@ struct  BlndStatus
   ProtobufCMessage base;
   BlndState state;
   float voltage;
+  float position;
 };
 #define BLND_STATUS__INIT \
  { PROTOBUF_C_MESSAGE_INIT (&blnd_status__descriptor) \
-    , BLND_STATE__BLINDS_MQTT_OPEN, 0 }
+    , BLND_STATE__BLINDS_MQTT_OPEN, 0, 0 }
 
 
 struct  BlndLogging
