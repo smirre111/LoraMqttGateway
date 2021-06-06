@@ -38,6 +38,93 @@
 
 #ifdef ZgatewayLORA
 
+void createDiscoveryRadio(int senderAddress) {
+  const int JSON_MSG_CALC_BUFFER = JSON_OBJECT_SIZE(64);
+  StaticJsonBuffer<JSON_MSG_CALC_BUFFER> jsonBuffer;
+  JsonObject& sensor = jsonBuffer.createObject();
+
+  String sendAddrStr = String(senderAddress);
+
+  String loraTopic = "home/OpenMQTTGateway_ESP32_LORA/LORAtoMQTT/" + sendAddrStr;
+
+  sensor.set("name", "cover"); //name
+  sensor.set("uniq_id", sendAddrStr); //unique_id
+  sensor.set("dev_cla", "blind");
+  sensor.set("cmd_t", "home/OpenMQTTGateway_ESP32_LORA/commands/MQTTtoLORA");
+
+  sensor.set("stat_t", loraTopic + "/status");
+  sensor.set("pos_t", loraTopic + "/position");
+  sensor.set("avty_t", loraTopic + "/available");
+
+  sensor.set("pl_avail", "online");
+  sensor.set("pl_not_avail", "offline");
+
+  sensor.set("qos", 0);
+  sensor.set("ret", true);
+
+  sensor.set("pl_open", "{address: " + sendAddrStr + ",subnet: 1, sender_address: 0, msgId: 0, cmd: \"OPEN\", message: \"test\"}");
+  sensor.set("pl_cls", "{address: " + sendAddrStr + ",subnet: 1, sender_address: 0, msgId: 0, cmd: \"CLOSE\", message: \"test\"}");
+  sensor.set("pl_stop", "{address: " + sendAddrStr + ",subnet: 1, sender_address: 0, msgId: 0, cmd: \"STOP\", message: \"test\"}");
+
+  sensor.set("stat_open", "open");
+  sensor.set("stat_opening", "opening");
+  sensor.set("stat_stopped", "stopped");
+  sensor.set("stat_closing", "closing");
+  sensor.set("stat_clsd", "closed");
+
+  sensor.set("opt", false);
+
+  sensor.set("val_tpl", "{{ value_json['message']['state'] }}");
+  sensor.set("position_template", "{{ value_json['message']['position'] }}");
+
+  String topic = String(discovery_Topic) + "/" + "cover" + "/" + sendAddrStr + "/config";
+  pub_custom_topic((char*)topic.c_str(), sensor, true);
+}
+
+void createDiscoverSensor(int senderAddress) {
+  const int JSON_MSG_CALC_BUFFER = JSON_OBJECT_SIZE(64);
+  StaticJsonBuffer<JSON_MSG_CALC_BUFFER> jsonBuffer;
+  JsonObject& sensor = jsonBuffer.createObject();
+
+  String sendAddrStr = String(senderAddress);
+
+  String loraTopic = "home/OpenMQTTGateway_ESP32_LORA/LORAtoMQTT/" + sendAddrStr;
+
+  sensor.set("name", "cover voltage"); //name
+  sensor.set("uniq_id", sendAddrStr + "_voltage"); //unique_id
+  // sensor.set("dev_cla", "blind");
+  // sensor.set("cmd_t", "home/OpenMQTTGateway_ESP32_LORA/commands/MQTTtoLORA");
+
+  sensor.set("stat_t", loraTopic + "/status");
+  // sensor.set("pos_t", loraTopic + "/position");
+  sensor.set("avty_t", loraTopic + "/available");
+
+  sensor.set("pl_avail", "online");
+  sensor.set("pl_not_avail", "offline");
+
+  // sensor.set("qos", 0);
+  // sensor.set("ret", true);
+
+  // sensor.set("pl_open", "{address: " + sendAddrStr + ",subnet: 1, sender_address: 0, msgId: 0, cmd: \"OPEN\", message: \"test\"}");
+  // sensor.set("pl_cls", "{address: " + sendAddrStr + ",subnet: 1, sender_address: 0, msgId: 0, cmd: \"CLOSE\", message: \"test\"}");
+  // sensor.set("pl_stop", "{address: " + sendAddrStr + ",subnet: 1, sender_address: 0, msgId: 0, cmd: \"STOP\", message: \"test\"}");
+
+  // sensor.set("stat_open", "open");
+  // sensor.set("stat_opening", "opening");
+  // sensor.set("stat_stopped", "stopped");
+  // sensor.set("stat_closing", "closing");
+  // sensor.set("stat_clsd", "closed");
+
+  // sensor.set("opt", false);
+  sensor.set("unit_of_meas", "V");
+
+  sensor.set("val_tpl", "{{ value_json['message']['volt'] }}");
+  // sensor.set("position_template", "{{ value_json['message']['position'] }}");
+
+  String topic = String(discovery_Topic) + "/" + "sensor" + "/" + sendAddrStr + "/config";
+  pub_custom_topic((char*)topic.c_str(), sensor, true);
+}
+
 blinds_syscmd_base_t MQTTMessageToLORACmd(const JsonObject& LORAdata) {
   blinds_syscmd_base_t cmd;
   const char* message = LORAdata["cmd"];
@@ -76,24 +163,32 @@ BlndOperation MQTTMessageToPbCmd(const JsonObject& LORAdata) {
   } else if (strcmp(message, "CLOSE") == 0) {
     cmd = BLND_OPERATION__CMD_CLOSE;
     Log.notice(F("Decoded CLOSE" CR));
-  } else if (strcmp(message, "ENABLE_WIFI") == 0) {
-    cmd = BLND_OPERATION__CMD_ENABLE_WIFI;
-    Log.notice(F("Decoded ENABLE WIFI" CR));
-  } else if (strcmp(message, "DIABLE_WIFI") == 0) {
-    cmd = BLND_OPERATION__CMD_DISABLE_WIFI;
-    Log.notice(F("Decoded DISABLE WIFI" CR));
-  } else if (strcmp(message, "OTA") == 0) {
-    cmd = BLND_OPERATION__CMD_OTA;
-    Log.notice(F("Decoded OTA" CR));
-  } else if (strcmp(message, "STATUS") == 0) {
-    cmd = BLND_OPERATION__CMD_STATUS;
-    Log.notice(F("Decoded STATUS" CR));
   } else if (strcmp(message, "STOP") == 0) {
     cmd = BLND_OPERATION__CMD_STOP;
     Log.notice(F("Decoded STOP" CR));
   } else {
     cmd = BLND_OPERATION__CMD_IDLE;
     Log.notice(F("Decoded No valid message" CR));
+  }
+
+  return cmd;
+}
+
+SysOperation MQTTMessageToPbSys(const JsonObject& LORAdata) {
+  SysOperation cmd;
+  const char* message = LORAdata["sys"];
+  if (strcmp(message, "ENABLE_WIFI") == 0) {
+    cmd = SYS_OPERATION__CMD_ENABLE_WIFI;
+    Log.notice(F("Decoded ENABLE WIFI" CR));
+  } else if (strcmp(message, "DIABLE_WIFI") == 0) {
+    cmd = SYS_OPERATION__CMD_DISABLE_WIFI;
+    Log.notice(F("Decoded DISABLE WIFI" CR));
+  } else if (strcmp(message, "OTA") == 0) {
+    cmd = SYS_OPERATION__CMD_OTA;
+    Log.notice(F("Decoded OTA" CR));
+  } else if (strcmp(message, "STATUS") == 0) {
+    cmd = SYS_OPERATION__CMD_STATUS;
+    Log.notice(F("Decoded STATUS" CR));
   }
 
   return cmd;
@@ -321,7 +416,6 @@ void LORAtoMQTT() {
     const String availableTopic = "available";
     const String positionTopic = "position";
 
-
 #  if (PB == 0)
     String mac_address(senderAddress);
 #  else
@@ -337,7 +431,6 @@ void LORAtoMQTT() {
     }
     String mactopicPos{};
     mactopicPos = subjectLORAtoMQTT + String("/") + mac_address + String("/") + positionTopic;
-
 
 #  if (PB == 0)
     LORAsubdata.set("destAddress", (int)destAddress);
@@ -368,6 +461,9 @@ void LORAtoMQTT() {
         pub((char*)mactopicPos.c_str(), LORAdata);
       } else {
         //pub(subjectLORAtoMQTT, LORAdata);
+        createDiscoveryRadio((int)rcv_message->senderaddress);
+        createDiscoverSensor((int)rcv_message->senderaddress);
+
         pub((char*)mactopic.c_str(), LORAmessage);
       }
 
@@ -380,6 +476,9 @@ void LORAtoMQTT() {
 
         } else {
           //pub(subjectLORAtoMQTT, LORAdata);
+          createDiscoveryRadio((int)rcv_message->senderaddress);
+          createDiscoverSensor((int)rcv_message->senderaddress);
+
           pub((char*)mactopic.c_str(), LORAmessage);
         }
       }
@@ -394,8 +493,6 @@ void LORAtoMQTT() {
     blnd_response_message__free_unpacked(rcv_message, NULL);
 
 #  endif
-
-
   }
 }
 
@@ -418,19 +515,55 @@ void MQTTtoLORA(char* topicOri, JsonObject& LORAdata) { // json object decoding
     uint8_t senderAddress = 0;
     uint8_t msgId = LORAdata["msgId"];
     //const char* cmdString = LORAdata["cmd"];
-    uint8_t cmd = MQTTMessageToLORACmd(LORAdata);
+    //uint8_t cmd = MQTTMessageToLORACmd(LORAdata);
     uint8_t length = 1;
     const char* message = LORAdata["message"];
 
 #    if (PB == 1)
-    BlndOperation operation = MQTTMessageToPbCmd(LORAdata);
+
+    BlndOperation op_init = BLND_OPERATION__CMD_IDLE;
+    // BlndOperationMessage op_message = BLND_OPERATION_MESSAGE__INIT;
+    // op_message.destaddress = destAddress;
+    // op_message.destsubnet = destSubnet;
+    // op_message.senderaddress = senderAddress;
+    // op_message.msgid = msgId;
 
     BlndOperationMessage op_message = {PROTOBUF_C_MESSAGE_INIT(&blnd_operation_message__descriptor),
                                        destAddress,
                                        destSubnet,
                                        senderAddress,
                                        msgId,
-                                       operation};
+                                       BLND_OPERATION_MESSAGE__CMD__NOT_SET,
+                                       op_init};
+
+    if (LORAdata.containsKey("cmd")) {
+      BlndOperation operation = MQTTMessageToPbCmd(LORAdata);
+      op_message.cmd_case = BLND_OPERATION_MESSAGE__CMD_OPERATION;
+      op_message.operation = operation;
+    } 
+    else if (LORAdata.containsKey("sys")) {
+      SysOperation sysOp = MQTTMessageToPbSys(LORAdata);
+      op_message.cmd_case = BLND_OPERATION_MESSAGE__CMD_SYSOP;
+      op_message.sysop = sysOp;
+    } 
+    else if (LORAdata.containsKey("addressing")) {
+      AddressUpdate addrUpd = ADDRESS_UPDATE__INIT;
+      addrUpd.addr = LORAdata["addressing"]["addr"];
+      addrUpd.subnt = LORAdata["addressing"]["subnet"];
+      Log.notice(F("New address: %d" CR), addrUpd.addr);
+      Log.notice(F("New subnet: %d" CR), addrUpd.subnt);
+      op_message.cmd_case = BLND_OPERATION_MESSAGE__CMD_ADDR;
+      op_message.addr =  {&addrUpd};
+    }
+    else if (LORAdata.containsKey("timing")) {
+      TimeUpdate timeUpd = TIME_UPDATE__INIT;
+      timeUpd.opentime = LORAdata["timing"]["open_time"];
+      timeUpd.closetime = LORAdata["timing"]["close_time"];
+      op_message.cmd_case = BLND_OPERATION_MESSAGE__CMD_TIME;
+      op_message.time = {&timeUpd};
+    }
+
+
 
     uint8_t* txBuf;
     unsigned len;
@@ -452,8 +585,6 @@ void MQTTtoLORA(char* topicOri, JsonObject& LORAdata) { // json object decoding
     Log.notice(F("Message to send: : %s" CR), payload);
 
 #    endif
-
-
 
     int txPower = LORAdata["txpower"] | LORA_TX_POWER;
     int spreadingFactor = LORAdata["spreadingfactor"] | LORA_SPREADING_FACTOR;

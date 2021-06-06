@@ -24,7 +24,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "User_config.h"
-
+#define ZmqttDiscovery
 #ifdef ZmqttDiscovery
 
 String getMacAddress() {
@@ -160,6 +160,12 @@ void createDiscovery(char* sensor_type,
   String topic = String(discovery_Topic) + "/" + String(sensor_type) + "/" + String(unique_id) + "/config";
   pub_custom_topic((char*)topic.c_str(), sensor, true);
 }
+
+
+
+
+
+
 
 void pubMqttDiscovery() {
   Log.trace(F("omgStatusDiscovery" CR));

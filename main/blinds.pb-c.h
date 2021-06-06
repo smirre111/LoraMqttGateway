@@ -18,6 +18,8 @@ PROTOBUF_C__BEGIN_DECLS
 typedef struct BlndStatus BlndStatus;
 typedef struct BlndLogging BlndLogging;
 typedef struct BlndAvailable BlndAvailable;
+typedef struct AddressUpdate AddressUpdate;
+typedef struct TimeUpdate TimeUpdate;
 typedef struct BlndOperationMessage BlndOperationMessage;
 typedef struct BlndResponseMessage BlndResponseMessage;
 
@@ -27,14 +29,17 @@ typedef struct BlndResponseMessage BlndResponseMessage;
 typedef enum _BlndOperation {
   BLND_OPERATION__CMD_OPEN = 0,
   BLND_OPERATION__CMD_CLOSE = 1,
-  BLND_OPERATION__CMD_ENABLE_WIFI = 2,
-  BLND_OPERATION__CMD_DISABLE_WIFI = 3,
-  BLND_OPERATION__CMD_OTA = 4,
-  BLND_OPERATION__CMD_STATUS = 5,
-  BLND_OPERATION__CMD_STOP = 6,
-  BLND_OPERATION__CMD_IDLE = 7
+  BLND_OPERATION__CMD_STOP = 2,
+  BLND_OPERATION__CMD_IDLE = 3
     PROTOBUF_C__FORCE_ENUM_TO_BE_INT_SIZE(BLND_OPERATION)
 } BlndOperation;
+typedef enum _SysOperation {
+  SYS_OPERATION__CMD_ENABLE_WIFI = 0,
+  SYS_OPERATION__CMD_DISABLE_WIFI = 1,
+  SYS_OPERATION__CMD_OTA = 2,
+  SYS_OPERATION__CMD_STATUS = 3
+    PROTOBUF_C__FORCE_ENUM_TO_BE_INT_SIZE(SYS_OPERATION)
+} SysOperation;
 typedef enum _BlndResponse {
   BLND_RESPONSE__RESP_STATUS = 0,
   BLND_RESPONSE__RESP_LOG = 1,
@@ -84,6 +89,37 @@ struct  BlndAvailable
     , 0 }
 
 
+struct  AddressUpdate
+{
+  ProtobufCMessage base;
+  uint32_t addr;
+  uint32_t subnt;
+};
+#define ADDRESS_UPDATE__INIT \
+ { PROTOBUF_C_MESSAGE_INIT (&address_update__descriptor) \
+    , 0, 0 }
+
+
+struct  TimeUpdate
+{
+  ProtobufCMessage base;
+  uint32_t opentime;
+  uint32_t closetime;
+};
+#define TIME_UPDATE__INIT \
+ { PROTOBUF_C_MESSAGE_INIT (&time_update__descriptor) \
+    , 0, 0 }
+
+
+typedef enum {
+  BLND_OPERATION_MESSAGE__CMD__NOT_SET = 0,
+  BLND_OPERATION_MESSAGE__CMD_OPERATION = 10,
+  BLND_OPERATION_MESSAGE__CMD_SYSOP = 11,
+  BLND_OPERATION_MESSAGE__CMD_ADDR = 12,
+  BLND_OPERATION_MESSAGE__CMD_TIME = 13
+    PROTOBUF_C__FORCE_ENUM_TO_BE_INT_SIZE(BLND_OPERATION_MESSAGE__CMD__CASE)
+} BlndOperationMessage__CmdCase;
+
 struct  BlndOperationMessage
 {
   ProtobufCMessage base;
@@ -91,11 +127,17 @@ struct  BlndOperationMessage
   uint32_t destsubnet;
   uint32_t senderaddress;
   uint32_t msgid;
-  BlndOperation operation;
+  BlndOperationMessage__CmdCase cmd_case;
+  union {
+    BlndOperation operation;
+    SysOperation sysop;
+    AddressUpdate *addr;
+    TimeUpdate *time;
+  };
 };
 #define BLND_OPERATION_MESSAGE__INIT \
  { PROTOBUF_C_MESSAGE_INIT (&blnd_operation_message__descriptor) \
-    , 0, 0, 0, 0, BLND_OPERATION__CMD_OPEN }
+    , 0, 0, 0, 0, BLND_OPERATION_MESSAGE__CMD__NOT_SET, {0} }
 
 
 typedef enum {
@@ -183,6 +225,44 @@ BlndAvailable *
 void   blnd_available__free_unpacked
                      (BlndAvailable *message,
                       ProtobufCAllocator *allocator);
+/* AddressUpdate methods */
+void   address_update__init
+                     (AddressUpdate         *message);
+size_t address_update__get_packed_size
+                     (const AddressUpdate   *message);
+size_t address_update__pack
+                     (const AddressUpdate   *message,
+                      uint8_t             *out);
+size_t address_update__pack_to_buffer
+                     (const AddressUpdate   *message,
+                      ProtobufCBuffer     *buffer);
+AddressUpdate *
+       address_update__unpack
+                     (ProtobufCAllocator  *allocator,
+                      size_t               len,
+                      const uint8_t       *data);
+void   address_update__free_unpacked
+                     (AddressUpdate *message,
+                      ProtobufCAllocator *allocator);
+/* TimeUpdate methods */
+void   time_update__init
+                     (TimeUpdate         *message);
+size_t time_update__get_packed_size
+                     (const TimeUpdate   *message);
+size_t time_update__pack
+                     (const TimeUpdate   *message,
+                      uint8_t             *out);
+size_t time_update__pack_to_buffer
+                     (const TimeUpdate   *message,
+                      ProtobufCBuffer     *buffer);
+TimeUpdate *
+       time_update__unpack
+                     (ProtobufCAllocator  *allocator,
+                      size_t               len,
+                      const uint8_t       *data);
+void   time_update__free_unpacked
+                     (TimeUpdate *message,
+                      ProtobufCAllocator *allocator);
 /* BlndOperationMessage methods */
 void   blnd_operation_message__init
                      (BlndOperationMessage         *message);
@@ -232,6 +312,12 @@ typedef void (*BlndLogging_Closure)
 typedef void (*BlndAvailable_Closure)
                  (const BlndAvailable *message,
                   void *closure_data);
+typedef void (*AddressUpdate_Closure)
+                 (const AddressUpdate *message,
+                  void *closure_data);
+typedef void (*TimeUpdate_Closure)
+                 (const TimeUpdate *message,
+                  void *closure_data);
 typedef void (*BlndOperationMessage_Closure)
                  (const BlndOperationMessage *message,
                   void *closure_data);
@@ -245,11 +331,14 @@ typedef void (*BlndResponseMessage_Closure)
 /* --- descriptors --- */
 
 extern const ProtobufCEnumDescriptor    blnd_operation__descriptor;
+extern const ProtobufCEnumDescriptor    sys_operation__descriptor;
 extern const ProtobufCEnumDescriptor    blnd_response__descriptor;
 extern const ProtobufCEnumDescriptor    blnd_state__descriptor;
 extern const ProtobufCMessageDescriptor blnd_status__descriptor;
 extern const ProtobufCMessageDescriptor blnd_logging__descriptor;
 extern const ProtobufCMessageDescriptor blnd_available__descriptor;
+extern const ProtobufCMessageDescriptor address_update__descriptor;
+extern const ProtobufCMessageDescriptor time_update__descriptor;
 extern const ProtobufCMessageDescriptor blnd_operation_message__descriptor;
 extern const ProtobufCMessageDescriptor blnd_response_message__descriptor;
 

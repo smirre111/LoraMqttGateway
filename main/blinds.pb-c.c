@@ -142,6 +142,96 @@ void   blnd_available__free_unpacked
   assert(message->base.descriptor == &blnd_available__descriptor);
   protobuf_c_message_free_unpacked ((ProtobufCMessage*)message, allocator);
 }
+void   address_update__init
+                     (AddressUpdate         *message)
+{
+  static const AddressUpdate init_value = ADDRESS_UPDATE__INIT;
+  *message = init_value;
+}
+size_t address_update__get_packed_size
+                     (const AddressUpdate *message)
+{
+  assert(message->base.descriptor == &address_update__descriptor);
+  return protobuf_c_message_get_packed_size ((const ProtobufCMessage*)(message));
+}
+size_t address_update__pack
+                     (const AddressUpdate *message,
+                      uint8_t       *out)
+{
+  assert(message->base.descriptor == &address_update__descriptor);
+  return protobuf_c_message_pack ((const ProtobufCMessage*)message, out);
+}
+size_t address_update__pack_to_buffer
+                     (const AddressUpdate *message,
+                      ProtobufCBuffer *buffer)
+{
+  assert(message->base.descriptor == &address_update__descriptor);
+  return protobuf_c_message_pack_to_buffer ((const ProtobufCMessage*)message, buffer);
+}
+AddressUpdate *
+       address_update__unpack
+                     (ProtobufCAllocator  *allocator,
+                      size_t               len,
+                      const uint8_t       *data)
+{
+  return (AddressUpdate *)
+     protobuf_c_message_unpack (&address_update__descriptor,
+                                allocator, len, data);
+}
+void   address_update__free_unpacked
+                     (AddressUpdate *message,
+                      ProtobufCAllocator *allocator)
+{
+  if(!message)
+    return;
+  assert(message->base.descriptor == &address_update__descriptor);
+  protobuf_c_message_free_unpacked ((ProtobufCMessage*)message, allocator);
+}
+void   time_update__init
+                     (TimeUpdate         *message)
+{
+  static const TimeUpdate init_value = TIME_UPDATE__INIT;
+  *message = init_value;
+}
+size_t time_update__get_packed_size
+                     (const TimeUpdate *message)
+{
+  assert(message->base.descriptor == &time_update__descriptor);
+  return protobuf_c_message_get_packed_size ((const ProtobufCMessage*)(message));
+}
+size_t time_update__pack
+                     (const TimeUpdate *message,
+                      uint8_t       *out)
+{
+  assert(message->base.descriptor == &time_update__descriptor);
+  return protobuf_c_message_pack ((const ProtobufCMessage*)message, out);
+}
+size_t time_update__pack_to_buffer
+                     (const TimeUpdate *message,
+                      ProtobufCBuffer *buffer)
+{
+  assert(message->base.descriptor == &time_update__descriptor);
+  return protobuf_c_message_pack_to_buffer ((const ProtobufCMessage*)message, buffer);
+}
+TimeUpdate *
+       time_update__unpack
+                     (ProtobufCAllocator  *allocator,
+                      size_t               len,
+                      const uint8_t       *data)
+{
+  return (TimeUpdate *)
+     protobuf_c_message_unpack (&time_update__descriptor,
+                                allocator, len, data);
+}
+void   time_update__free_unpacked
+                     (TimeUpdate *message,
+                      ProtobufCAllocator *allocator)
+{
+  if(!message)
+    return;
+  assert(message->base.descriptor == &time_update__descriptor);
+  protobuf_c_message_free_unpacked ((ProtobufCMessage*)message, allocator);
+}
 void   blnd_operation_message__init
                      (BlndOperationMessage         *message)
 {
@@ -372,7 +462,109 @@ const ProtobufCMessageDescriptor blnd_available__descriptor =
   (ProtobufCMessageInit) blnd_available__init,
   NULL,NULL,NULL    /* reserved[123] */
 };
-static const ProtobufCFieldDescriptor blnd_operation_message__field_descriptors[5] =
+static const ProtobufCFieldDescriptor address_update__field_descriptors[2] =
+{
+  {
+    "addr",
+    1,
+    PROTOBUF_C_LABEL_NONE,
+    PROTOBUF_C_TYPE_UINT32,
+    0,   /* quantifier_offset */
+    offsetof(AddressUpdate, addr),
+    NULL,
+    NULL,
+    0,             /* flags */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+  {
+    "subnt",
+    2,
+    PROTOBUF_C_LABEL_NONE,
+    PROTOBUF_C_TYPE_UINT32,
+    0,   /* quantifier_offset */
+    offsetof(AddressUpdate, subnt),
+    NULL,
+    NULL,
+    0,             /* flags */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+};
+static const unsigned address_update__field_indices_by_name[] = {
+  0,   /* field[0] = addr */
+  1,   /* field[1] = subnt */
+};
+static const ProtobufCIntRange address_update__number_ranges[1 + 1] =
+{
+  { 1, 0 },
+  { 0, 2 }
+};
+const ProtobufCMessageDescriptor address_update__descriptor =
+{
+  PROTOBUF_C__MESSAGE_DESCRIPTOR_MAGIC,
+  "AddressUpdate",
+  "AddressUpdate",
+  "AddressUpdate",
+  "",
+  sizeof(AddressUpdate),
+  2,
+  address_update__field_descriptors,
+  address_update__field_indices_by_name,
+  1,  address_update__number_ranges,
+  (ProtobufCMessageInit) address_update__init,
+  NULL,NULL,NULL    /* reserved[123] */
+};
+static const ProtobufCFieldDescriptor time_update__field_descriptors[2] =
+{
+  {
+    "openTime",
+    1,
+    PROTOBUF_C_LABEL_NONE,
+    PROTOBUF_C_TYPE_UINT32,
+    0,   /* quantifier_offset */
+    offsetof(TimeUpdate, opentime),
+    NULL,
+    NULL,
+    0,             /* flags */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+  {
+    "closeTime",
+    2,
+    PROTOBUF_C_LABEL_NONE,
+    PROTOBUF_C_TYPE_UINT32,
+    0,   /* quantifier_offset */
+    offsetof(TimeUpdate, closetime),
+    NULL,
+    NULL,
+    0,             /* flags */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+};
+static const unsigned time_update__field_indices_by_name[] = {
+  1,   /* field[1] = closeTime */
+  0,   /* field[0] = openTime */
+};
+static const ProtobufCIntRange time_update__number_ranges[1 + 1] =
+{
+  { 1, 0 },
+  { 0, 2 }
+};
+const ProtobufCMessageDescriptor time_update__descriptor =
+{
+  PROTOBUF_C__MESSAGE_DESCRIPTOR_MAGIC,
+  "TimeUpdate",
+  "TimeUpdate",
+  "TimeUpdate",
+  "",
+  sizeof(TimeUpdate),
+  2,
+  time_update__field_descriptors,
+  time_update__field_indices_by_name,
+  1,  time_update__number_ranges,
+  (ProtobufCMessageInit) time_update__init,
+  NULL,NULL,NULL    /* reserved[123] */
+};
+static const ProtobufCFieldDescriptor blnd_operation_message__field_descriptors[8] =
 {
   {
     "destAddress",
@@ -424,28 +616,68 @@ static const ProtobufCFieldDescriptor blnd_operation_message__field_descriptors[
   },
   {
     "operation",
-    5,
+    10,
     PROTOBUF_C_LABEL_NONE,
     PROTOBUF_C_TYPE_ENUM,
-    0,   /* quantifier_offset */
+    offsetof(BlndOperationMessage, cmd_case),
     offsetof(BlndOperationMessage, operation),
     &blnd_operation__descriptor,
     NULL,
-    0,             /* flags */
+    0 | PROTOBUF_C_FIELD_FLAG_ONEOF,             /* flags */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+  {
+    "sysop",
+    11,
+    PROTOBUF_C_LABEL_NONE,
+    PROTOBUF_C_TYPE_ENUM,
+    offsetof(BlndOperationMessage, cmd_case),
+    offsetof(BlndOperationMessage, sysop),
+    &sys_operation__descriptor,
+    NULL,
+    0 | PROTOBUF_C_FIELD_FLAG_ONEOF,             /* flags */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+  {
+    "addr",
+    12,
+    PROTOBUF_C_LABEL_NONE,
+    PROTOBUF_C_TYPE_MESSAGE,
+    offsetof(BlndOperationMessage, cmd_case),
+    offsetof(BlndOperationMessage, addr),
+    &address_update__descriptor,
+    NULL,
+    0 | PROTOBUF_C_FIELD_FLAG_ONEOF,             /* flags */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+  {
+    "time",
+    13,
+    PROTOBUF_C_LABEL_NONE,
+    PROTOBUF_C_TYPE_MESSAGE,
+    offsetof(BlndOperationMessage, cmd_case),
+    offsetof(BlndOperationMessage, time),
+    &time_update__descriptor,
+    NULL,
+    0 | PROTOBUF_C_FIELD_FLAG_ONEOF,             /* flags */
     0,NULL,NULL    /* reserved1,reserved2, etc */
   },
 };
 static const unsigned blnd_operation_message__field_indices_by_name[] = {
+  6,   /* field[6] = addr */
   0,   /* field[0] = destAddress */
   1,   /* field[1] = destSubnet */
   3,   /* field[3] = msgId */
   4,   /* field[4] = operation */
   2,   /* field[2] = senderAddress */
+  5,   /* field[5] = sysop */
+  7,   /* field[7] = time */
 };
-static const ProtobufCIntRange blnd_operation_message__number_ranges[1 + 1] =
+static const ProtobufCIntRange blnd_operation_message__number_ranges[2 + 1] =
 {
   { 1, 0 },
-  { 0, 5 }
+  { 10, 4 },
+  { 0, 8 }
 };
 const ProtobufCMessageDescriptor blnd_operation_message__descriptor =
 {
@@ -455,10 +687,10 @@ const ProtobufCMessageDescriptor blnd_operation_message__descriptor =
   "BlndOperationMessage",
   "",
   sizeof(BlndOperationMessage),
-  5,
+  8,
   blnd_operation_message__field_descriptors,
   blnd_operation_message__field_indices_by_name,
-  1,  blnd_operation_message__number_ranges,
+  2,  blnd_operation_message__number_ranges,
   (ProtobufCMessageInit) blnd_operation_message__init,
   NULL,NULL,NULL    /* reserved[123] */
 };
@@ -592,30 +824,22 @@ const ProtobufCMessageDescriptor blnd_response_message__descriptor =
   (ProtobufCMessageInit) blnd_response_message__init,
   NULL,NULL,NULL    /* reserved[123] */
 };
-static const ProtobufCEnumValue blnd_operation__enum_values_by_number[8] =
+static const ProtobufCEnumValue blnd_operation__enum_values_by_number[4] =
 {
   { "CMD_OPEN", "BLND_OPERATION__CMD_OPEN", 0 },
   { "CMD_CLOSE", "BLND_OPERATION__CMD_CLOSE", 1 },
-  { "CMD_ENABLE_WIFI", "BLND_OPERATION__CMD_ENABLE_WIFI", 2 },
-  { "CMD_DISABLE_WIFI", "BLND_OPERATION__CMD_DISABLE_WIFI", 3 },
-  { "CMD_OTA", "BLND_OPERATION__CMD_OTA", 4 },
-  { "CMD_STATUS", "BLND_OPERATION__CMD_STATUS", 5 },
-  { "CMD_STOP", "BLND_OPERATION__CMD_STOP", 6 },
-  { "CMD_IDLE", "BLND_OPERATION__CMD_IDLE", 7 },
+  { "CMD_STOP", "BLND_OPERATION__CMD_STOP", 2 },
+  { "CMD_IDLE", "BLND_OPERATION__CMD_IDLE", 3 },
 };
 static const ProtobufCIntRange blnd_operation__value_ranges[] = {
-{0, 0},{0, 8}
+{0, 0},{0, 4}
 };
-static const ProtobufCEnumValueIndex blnd_operation__enum_values_by_name[8] =
+static const ProtobufCEnumValueIndex blnd_operation__enum_values_by_name[4] =
 {
   { "CMD_CLOSE", 1 },
-  { "CMD_DISABLE_WIFI", 3 },
-  { "CMD_ENABLE_WIFI", 2 },
-  { "CMD_IDLE", 7 },
+  { "CMD_IDLE", 3 },
   { "CMD_OPEN", 0 },
-  { "CMD_OTA", 4 },
-  { "CMD_STATUS", 5 },
-  { "CMD_STOP", 6 },
+  { "CMD_STOP", 2 },
 };
 const ProtobufCEnumDescriptor blnd_operation__descriptor =
 {
@@ -624,12 +848,44 @@ const ProtobufCEnumDescriptor blnd_operation__descriptor =
   "BlndOperation",
   "BlndOperation",
   "",
-  8,
+  4,
   blnd_operation__enum_values_by_number,
-  8,
+  4,
   blnd_operation__enum_values_by_name,
   1,
   blnd_operation__value_ranges,
+  NULL,NULL,NULL,NULL   /* reserved[1234] */
+};
+static const ProtobufCEnumValue sys_operation__enum_values_by_number[4] =
+{
+  { "CMD_ENABLE_WIFI", "SYS_OPERATION__CMD_ENABLE_WIFI", 0 },
+  { "CMD_DISABLE_WIFI", "SYS_OPERATION__CMD_DISABLE_WIFI", 1 },
+  { "CMD_OTA", "SYS_OPERATION__CMD_OTA", 2 },
+  { "CMD_STATUS", "SYS_OPERATION__CMD_STATUS", 3 },
+};
+static const ProtobufCIntRange sys_operation__value_ranges[] = {
+{0, 0},{0, 4}
+};
+static const ProtobufCEnumValueIndex sys_operation__enum_values_by_name[4] =
+{
+  { "CMD_DISABLE_WIFI", 1 },
+  { "CMD_ENABLE_WIFI", 0 },
+  { "CMD_OTA", 2 },
+  { "CMD_STATUS", 3 },
+};
+const ProtobufCEnumDescriptor sys_operation__descriptor =
+{
+  PROTOBUF_C__ENUM_DESCRIPTOR_MAGIC,
+  "SysOperation",
+  "SysOperation",
+  "SysOperation",
+  "",
+  4,
+  sys_operation__enum_values_by_number,
+  4,
+  sys_operation__enum_values_by_name,
+  1,
+  sys_operation__value_ranges,
   NULL,NULL,NULL,NULL   /* reserved[1234] */
 };
 static const ProtobufCEnumValue blnd_response__enum_values_by_number[3] =
